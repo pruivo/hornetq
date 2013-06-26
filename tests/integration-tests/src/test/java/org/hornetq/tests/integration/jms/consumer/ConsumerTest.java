@@ -51,7 +51,10 @@ public class ConsumerTest extends JMSTestBase
 
    private static final String Q_NAME = "ConsumerTestQueue";
 
+   private static final String T_NAME = "ConsumerTestTopic";
+
    private javax.jms.Queue jBossQueue;
+   private javax.jms.Topic topic;
 
    @Override
    @Before
@@ -60,6 +63,7 @@ public class ConsumerTest extends JMSTestBase
       super.setUp();
 
       jmsServer.createQueue(false, ConsumerTest.Q_NAME, null, true, ConsumerTest.Q_NAME);
+      jmsServer.createTopic(true, T_NAME, "/topic/" +T_NAME);
       cf = (ConnectionFactory)HornetQJMSClient.createConnectionFactoryWithoutHA(JMSFactoryType.CF, new TransportConfiguration("org.hornetq.core.remoting.impl.invm.InVMConnectorFactory"));
    }
 
@@ -495,5 +499,88 @@ public class ConsumerTest extends JMSTestBase
       {
          // Ok
       }
+   }
+
+   @Test
+   public void testSharedConsumer() throws Exception
+   {
+      conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = HornetQJMSClient.createTopic(T_NAME);
+
+
+      MessageConsumer cons = session.createSharedConsumer(topic, "test1");
+
+      MessageProducer producer = session.createProducer(topic);
+
+      producer.send(session.createTextMessage("test"));
+
+      TextMessage txt = (TextMessage)cons.receive(5000);
+
+      assertNotNull(txt);
+   }
+
+   @Test
+   public void testSharedDurableConsumer() throws Exception
+   {
+      conn = cf.createConnection();
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      topic = HornetQJMSClient.createTopic(T_NAME);
+
+
+      MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
+
+      MessageProducer producer = session.createProducer(topic);
+
+      producer.send(session.createTextMessage("test"));
+
+      TextMessage txt = (TextMessage)cons.receive(5000);
+
+      assertNotNull(txt);
+   }
+
+   @Test
+   public void testSharedDurableConsumerWithClientID() throws Exception
+   {
+      conn = cf.createConnection();
+      conn.setClientID("C1");
+      conn.start();
+      Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      Connection conn2 = cf.createConnection();
+      conn2.setClientID("C2");
+      Session session2 = conn2.createSession(false, Session.AUTO_ACKNOWLEDGE);
+
+      {
+         Connection conn3 = cf.createConnection();
+
+         boolean exception = false;
+         try
+         {
+            conn3.setClientID("C2");
+         }
+         catch (Exception e)
+         {
+            exception = true;
+         }
+
+         assertTrue(exception);
+         conn3.close();
+      }
+
+      topic = HornetQJMSClient.createTopic(T_NAME);
+
+
+      MessageConsumer cons = session.createSharedDurableConsumer(topic, "test1");
+
+      MessageProducer producer = session.createProducer(topic);
+
+      producer.send(session.createTextMessage("test"));
+
+      TextMessage txt = (TextMessage)cons.receive(5000);
+
+      assertNotNull(txt);
    }
 }

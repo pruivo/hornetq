@@ -100,6 +100,21 @@ public class HornetQDestination implements Destination, Serializable, Referencea
       return HornetQDestination.escape(clientID) + SEPARATOR + HornetQDestination.escape(subscriptionName);
    }
 
+   public static String createQueueNameForSharedSubscription(final boolean isDurable, final String clientID, final String subscriptionName)
+   {
+      if (clientID != null)
+      {
+         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
+            HornetQDestination.escape(clientID) + SEPARATOR +
+            HornetQDestination.escape(subscriptionName);
+      }
+      else
+      {
+         return (isDurable ? "Durable" : "nonDurable") + SEPARATOR +
+            HornetQDestination.escape(subscriptionName);
+      }
+   }
+
    public static Pair<String, String> decomposeQueueNameForDurableSubscription(final String queueName)
    {
       StringBuffer[] parts = new StringBuffer[2];
