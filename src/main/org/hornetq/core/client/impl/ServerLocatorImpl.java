@@ -528,7 +528,7 @@ public class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListen
       // what updates were sent from the server
       if (ha && usedTopology != null)
       {
-         int pos = loadBalancingPolicy.select(topologyArray.length);
+         int pos = loadBalancingPolicy.select(usedTopology);
 
          Pair<TransportConfiguration, TransportConfiguration> pair = usedTopology[pos];
 
@@ -538,7 +538,7 @@ public class ServerLocatorImpl implements ServerLocatorInternal, DiscoveryListen
       {
          // Get from initialconnectors
 
-         int pos = loadBalancingPolicy.select(initialConnectors.length);
+         int pos = loadBalancingPolicy.select(initialConnectors);
 
          return initialConnectors[pos];
       }

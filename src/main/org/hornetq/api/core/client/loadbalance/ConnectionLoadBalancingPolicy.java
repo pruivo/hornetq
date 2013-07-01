@@ -13,6 +13,9 @@
 
 package org.hornetq.api.core.client.loadbalance;
 
+import org.hornetq.api.core.Pair;
+import org.hornetq.api.core.TransportConfiguration;
+
 /**
  * A ConnectionLoadBalancingPolicy defines a policy to load balance between connections.
  *
@@ -23,7 +26,9 @@ public interface ConnectionLoadBalancingPolicy
    /**
     * Returns the selected index according to the policy implementation.
     *
-    * @param max maximum position index that can be selected
+    * @param elements
     */
-   int select(int max);
+   int select(Pair<TransportConfiguration, TransportConfiguration>[] elements);
+
+   int select(TransportConfiguration[] elements);
 }

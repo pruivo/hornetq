@@ -13,6 +13,8 @@
 
 package org.hornetq.api.core.client.loadbalance;
 
+import org.hornetq.api.core.Pair;
+import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.utils.Random;
 
 import java.io.Serializable;
@@ -21,7 +23,7 @@ import java.io.Serializable;
  * RoundRobinConnectionLoadBalancingPolicy corresponds to a round-robin load-balancing policy.
  *
  * <br>
- * The first call to {@link #select(int)} will return a random integer between {@code 0} (inclusive) and {@code max} (exclusive).
+ * The first call to {@link ConnectionLoadBalancingPolicy#select(org.hornetq.api.core.Pair[])} will return a random integer between {@code 0} (inclusive) and {@code max} (exclusive).
  * Subsequent calls will then return an integer in a round-robin fashion.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
@@ -40,8 +42,32 @@ public class RoundRobinConnectionLoadBalancingPolicy implements ConnectionLoadBa
 
    private int pos;
 
-   public int select(final int max)
+    @Override
+    public int select(Pair<TransportConfiguration, TransportConfiguration>[] elements) {
+        int max = elements.length;
+        if (first)
+        {
+            // We start on a random one
+            pos = random.getRandom().nextInt(max);
+
+            first = false;
+        }
+        else
+        {
+            pos++;
+
+            if (pos >= max)
+            {
+                pos = 0;
+            }
+        }
+
+        return pos;
+    }
+
+    public int select(TransportConfiguration[] elements)
    {
+      int max = elements.length;
       if (first)
       {
          // We start on a random one

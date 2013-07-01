@@ -13,10 +13,12 @@
 
 package org.hornetq.api.core.client.loadbalance;
 
+import org.hornetq.api.core.Pair;
+import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.utils.Random;
 
 /**
- * {@link RandomConnectionLoadBalancingPolicy#select(int)} chooses a the initial node randomly then subsequent requests return the same node
+ * {@link ConnectionLoadBalancingPolicy#select(org.hornetq.api.core.Pair[])} chooses a the initial node randomly then subsequent requests return the same node
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
@@ -27,11 +29,21 @@ public class RandomStickyConnectionLoadBalancingPolicy implements ConnectionLoad
 
    private int pos = -1;
 
-   public int select(final int max)
+    @Override
+    public int select(Pair<TransportConfiguration, TransportConfiguration>[] elements) {
+        if (pos == -1)
+        {
+            pos = random.getRandom().nextInt(elements.length);
+        }
+
+        return pos;
+    }
+
+    public int select(TransportConfiguration[] elements)
    {
       if (pos == -1)
       {
-         pos = random.getRandom().nextInt(max);
+         pos = random.getRandom().nextInt(elements.length);
       }
 
       return pos;

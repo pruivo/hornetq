@@ -14,8 +14,11 @@
 package org.hornetq.api.core.client.loadbalance;
 
 
+import org.hornetq.api.core.Pair;
+import org.hornetq.api.core.TransportConfiguration;
+
 /**
- * A {@link FirstElementConnectionLoadBalancingPolicy#select(int)} always returns 0.
+ * A {@link ConnectionLoadBalancingPolicy#select(org.hornetq.api.core.Pair[])} always returns 0.
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
@@ -23,7 +26,12 @@ package org.hornetq.api.core.client.loadbalance;
  */
 public class FirstElementConnectionLoadBalancingPolicy implements ConnectionLoadBalancingPolicy
 {
-   public int select(final int max)
+    @Override
+    public int select(Pair<TransportConfiguration, TransportConfiguration>[] elements) {
+        return 0;
+    }
+
+    public int select(TransportConfiguration[] elements)
    {
       return 0;
    }

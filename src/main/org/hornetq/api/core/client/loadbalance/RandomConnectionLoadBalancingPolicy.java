@@ -13,10 +13,12 @@
 
 package org.hornetq.api.core.client.loadbalance;
 
+import org.hornetq.api.core.Pair;
+import org.hornetq.api.core.TransportConfiguration;
 import org.hornetq.utils.Random;
 
 /**
- * {@link RandomConnectionLoadBalancingPolicy#select(int)} returns a random integer between {@code 0} (inclusive) and {@code max} (exclusive)
+ * {@link ConnectionLoadBalancingPolicy#select(org.hornetq.api.core.Pair[])} returns a random integer between {@code 0} (inclusive) and {@code max} (exclusive)
  *
  * @author <a href="mailto:tim.fox@jboss.com">Tim Fox</a>
  *
@@ -28,8 +30,13 @@ public class RandomConnectionLoadBalancingPolicy implements ConnectionLoadBalanc
 {
    private final Random random = new Random();
 
-   public int select(final int max)
+    @Override
+    public int select(Pair<TransportConfiguration, TransportConfiguration>[] elements) {
+        return random.getRandom().nextInt(elements.length);
+    }
+
+    public int select(TransportConfiguration[] elements)
    {
-      return random.getRandom().nextInt(max);
+      return random.getRandom().nextInt(elements.length);
    }
 }
